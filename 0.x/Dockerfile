@@ -1,4 +1,4 @@
-FROM php:8-alpine
+FROM php:8.0-alpine
 
 RUN set -eux ; \
   apk add --no-cache --virtual .composer-rundeps \
@@ -20,7 +20,11 @@ date.timezone=UTC\n\
 memory_limit=-1\n\
 " > $PHP_INI_DIR/php-cli.ini
 
-ENV PHP_SCOPER_VERSION 0.15.0
+ENV INSTALL_PHP_EXTENSIONS_VERSION 1.5.7
+ENV INSTALL_PHP_EXTENSIONS_SHA512 85c9f513f5bd340d97e378ccf2b140b7f7927462697e04289deec4a88d80fc36864cb8b60a95479996210eb7e6c34c1fc16a7c23789c3095dc74e937fd26da88
+
+ENV PHP_SCOPER_VERSION 0.16.2
+ENV PHP_SCOPER_SHA512 d5ef3409473f025b3f4e79dd48c98ae661580e3e65da03bbc82749947f3e5500c0cb5785f186d6d23de03bb96886fd5a0e745970d1e499d39a6591dd693ca5ab
 
 RUN set -eux ; \
   # install https://github.com/mlocati/docker-php-extension-installer
@@ -30,13 +34,14 @@ RUN set -eux ; \
     --location \
     --retry 3 \
     --output /usr/local/bin/install-php-extensions \
-    --url https://github.com/mlocati/docker-php-extension-installer/releases/download/1.2.58/install-php-extensions \
+    --url https://github.com/mlocati/docker-php-extension-installer/releases/download/${INSTALL_PHP_EXTENSIONS_VERSION}/install-php-extensions \
   ; \
-  echo 182011b3dca5544a70fdeb587af44ed1760aa9a2ed37d787d0f280a99f92b008e638c37762360cd85583830a097665547849cb2293c4a0ee32c2a36ef7a349e2 /usr/local/bin/install-php-extensions | sha512sum --strict --check ; \
+  echo ${INSTALL_PHP_EXTENSIONS_SHA512} /usr/local/bin/install-php-extensions | sha512sum --strict --check ; \
   chmod +x /usr/local/bin/install-php-extensions ; \
   # install necessary/useful extensions not included in base image
   install-php-extensions \
     bz2 \
+    intl \
     zip \
   ; \
   # install public keys for snapshot and tag validation, see https://composer.github.io/pubkeys.html
@@ -48,7 +53,7 @@ RUN set -eux ; \
     --output /usr/bin/php-scoper \
     --url https://github.com/humbug/php-scoper/releases/download/${PHP_SCOPER_VERSION}/php-scoper.phar \
   ; \
-  echo e69cbe0233ff9a8077e9037f5eae474b6152945c4f2d01a7151a6de7ef684083dcc6ff8c0d7784703e552118e904c4944b0fa9e16e0d3e3ed850b22e2d06775b /usr/bin/php-scoper | sha512sum --strict --check ; \
+  echo ${PHP_SCOPER_SHA512} /usr/bin/php-scoper | sha512sum --strict --check ; \
   chmod +x /usr/bin/php-scoper
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh

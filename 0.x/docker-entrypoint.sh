@@ -13,7 +13,7 @@ isCommand() {
 # check if the first argument passed in looks like a flag
 if [ "${1#-}" != "$1" ]; then
   set -- /sbin/tini -- php-scoper "$@"
-# check if the first argument passed in is composer
+# check if the first argument passed in is php-scoper
 elif [ "$1" = 'php-scoper' ]; then
   set -- /sbin/tini -- "$@"
 # check if the first argument passed in matches a known command
